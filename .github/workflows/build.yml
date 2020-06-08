@@ -1,4 +1,4 @@
-name: Build olsrd
+name: Olsrd Compile
 on:
   push:
   pull_request:
@@ -12,21 +12,6 @@ jobs:
         with:
           path: olsrd
       - name: Install dependencies
-        run: sudo apt install git subversion build-essential python gawk unzip libncurses5-dev zlib1g-dev libssl-dev wget time libncurses-dev
-      - name: Download OpenWrt SDK
-        run: curl -o openwrt-sdk.tar.xz https://downloads.openwrt.org/snapshots/targets/ath79/generic/openwrt-sdk-ath79-generic_gcc-8.4.0_musl.Linux-x86_64.tar.xz
-      - name: Extract OpenWrt SDK
-        run: tar xf openwrt-sdk.tar.xz && mv openwrt-sdk-ath79-generic_gcc-8.4.0_musl.Linux-x86_64 sdk
-      - name: Create config
-        run: make -C sdk defconfig && echo "CONFIG_SRC_TREE_OVERRIDE=y" >> sdk/.config
-      - name: Update package feed
-        run: ./sdk/scripts/feeds update -a && ./sdk/scripts/feeds install -a
-      - name: Link olsrd source
-        run: ln -s $GITHUB_WORKSPACE/olsrd/.git sdk/feeds/routing/olsrd/git-src
+        run: sudo apt-get install build-essential dpkg-dev bison flex
       - name: Compile olsrd
-        run: make -C sdk package/olsrd/{clean,compile} V=s
-      - name: Archive build output
-        uses: actions/upload-artifact@v1
-        with:
-          name: output
-          path: sdk/bin/packages/mips_24kc/packages
+        run: cd olsrd && make
